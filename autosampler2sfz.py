@@ -15,7 +15,7 @@ from shutil import copy2
 # Prints out a help message and exits
 def exit_with_helpmsg(status=0):
     print ("Usage: autosampler2sfz.py [-h] [-n <name>] [-o <output_dir>] <samples_dir>\n")
-    print ("Creates an SFZ sampled instrument from the Auto Sampler-generated samples.\n")
+    print ("Generates an SFZ sampled instrument from samples created by the Auto Sampler plugin.\n")
     print ("Arguments:")
     print ("  -h\tPrints out this help message.")
     print ("  -n\tThe name of the SFZ instrument. If not specified, the name of <samples_dir> will be used.")
