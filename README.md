@@ -67,7 +67,7 @@ The instrument(.sfz and a folder containing samples) will be saved to the deskto
 
 ## Conversion to SF2
 
-If you need to convert your SFZ sampled instrument to SF2, you can do it with [Polyphone](http://www.polyphone.fr).
+If you need to convert your SFZ sampled instrument to SF2, you can do it with [Polyphone](http://polyphone-soundfonts.com/en/).
 
 Please note that Polyphone supports only [WAV](https://en.wikipedia.org/wiki/WAV) files while Auto Sampler-generated samples are [AIFF](https://en.wikipedia.org/wiki/Audio_Interchange_File_Format) files. You can convert your samples to .wav using one of the numerous existing audio editors and then open the .sfz file in your favorite plain-text editor and change all .aif extensions to .wav
 
