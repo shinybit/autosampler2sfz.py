@@ -185,8 +185,8 @@ def main(argv):
     print ("Writing to {0}...".format(sfz_filename))
     f = open(output_dir + '/' + sfz_filename, 'w')
     print ("//-------------------------------------------------", file=f)
-    print ("// SFZ created by autosampler2sfz", file=f)
-    print ("// See https://github.com/shinybit/autosampler2sfz", file=f)
+    print ("// SFZ created by autosampler2sfz.py", file=f)
+    print ("// See https://github.com/shinybit/autosampler2sfz.py", file=f)
     print ("//", file=f)
     print ("// Name:   {0}".format(sfz_name), file=f)
     print ("// Author: {0}".format(getuser()), file=f)
@@ -221,6 +221,7 @@ def main(argv):
     # closing file and reporting success
     f.close()
     print ("Done.\n")
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
