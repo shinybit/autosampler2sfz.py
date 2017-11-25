@@ -47,11 +47,13 @@ So, we can parse these file names and generate an SFZ instrument based on these 
 
 ## Usage
 ```
-$ python autosampler2sfz.py [-h] [-n <name>] [-o <output_dir>] <samples_dir>
+$ python autosampler2sfz.py [-h] [-n <name>] [-w] [-d] [-o <output_dir>] <samples_dir>
 
 Arguments:
-  -h	Prints out this help message.
+  -h	Prints out this help message
   -n	The name of the SFZ instrument. If not specified, the name of <samples_dir> will be used.
+  -w	Convert samples to .wav files
+  -d	Downsample to 16 bits per sample
   -o	The output directory. If not specified, the files will be saved to the current directory.
 ```
 
@@ -69,7 +71,7 @@ The instrument(.sfz and a folder containing samples) will be saved to the deskto
 
 If you need to convert your SFZ sampled instrument to SF2, you can do it with [Polyphone](http://polyphone-soundfonts.com/en/).
 
-Please note that Polyphone supports only [WAV](https://en.wikipedia.org/wiki/WAV) files while Auto Sampler-generated samples are [AIFF](https://en.wikipedia.org/wiki/Audio_Interchange_File_Format) files. You can convert your samples to .wav using one of the numerous existing audio editors and then open the .sfz file in your favorite plain-text editor and change all .aif extensions to .wav
+Please note that Polyphone supports only [WAV](https://en.wikipedia.org/wiki/WAV) files so you will need to convert your samples to .wav (see -w option).
 
 ## Software samplers with SFZ support
 

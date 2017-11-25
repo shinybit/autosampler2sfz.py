@@ -6,6 +6,7 @@ import getopt
 import glob
 import os
 import sys
+import subprocess
 from datetime import date
 from getpass import getuser
 from re import compile
@@ -14,15 +15,14 @@ from shutil import copy2
 
 # Prints out a help message and exits
 def exit_with_helpmsg(status=0):
-    print ("Usage: autosampler2sfz.py [-h] [-n <name>] [-o <output_dir>] <samples_dir>\n")
+    print ("Usage: autosampler2sfz.py [-h] [-n <name>] [-w] [-d] [-o <output_dir>] <samples_dir>\n")
     print ("Generates an SFZ sampled instrument from samples created by the Auto Sampler plugin.\n")
     print ("Arguments:")
-    print ("  -h\tPrints out this help message.")
+    print ("  -h\tPrints out this help message")
     print ("  -n\tThe name of the SFZ instrument. If not specified, the name of <samples_dir> will be used.")
+    print ("  -w\tConvert samples to .wav files")
+    print ("  -d\tDownsample to 16 bits per sample")
     print ("  -o\tThe output directory. If not specified, the files will be saved to the current directory.")
-    # TODO implement conversion to .wav
-    # print("  -w\tConvert samples to .wav")
-    # TODO output note names or note numbers
     print ()
     sys.exit(status)
 
@@ -103,7 +103,7 @@ def main(argv):
     opts = []
     args = []
     try:
-        opts, args = getopt.getopt(argv, "hn:o:", [])
+        opts, args = getopt.getopt(argv, "hn:wdo:", [])
     except getopt.GetoptError:
         exit_with_helpmsg(2)
 
@@ -128,17 +128,20 @@ def main(argv):
     # -------------------------
     # parsing other arguments -
     # -------------------------
-    # convert2wav = False
+    convert2wav = False
+    bits = 24
     output_dir = ''
     for opt, arg in opts:
         if opt == '-h':
             exit_with_helpmsg()
-        # elif opt == '-w':
-        #    convert2wav = True
         elif opt == '-n':
             sfz_name = arg
         elif opt == '-o':
             output_dir = arg
+        elif opt == '-w':
+            convert2wav = True
+        elif opt == '-d':
+            bits = 16
 
     # ---------------------------
     # checking output directory -
@@ -170,7 +173,7 @@ def main(argv):
     file_regex = compile(r'^[\w,\s-]+([A-G][#]?)([-]?\d)-(\d{2,3})-[A-Z0-9]{4}\.AIF$')
 
     # counting all notes used to calculate regions
-    print ("Copying samples to the output directory...")
+    print("Saving samples to the output directory...")
     notes = []
     for sample in samples:
         filename = os.path.basename(sample)
@@ -179,19 +182,34 @@ def main(argv):
             note = s.group(1) + s.group(2)
             if note not in notes:
                 notes.append(note)
-            copy2(sample, output_samples_dir)
+            if convert2wav:
+                cmd = 'afconvert -f WAVE -d LEI' + str(bits) + ' ' + sample.replace(' ', '\ ') + ' ' +\
+                      (output_samples_dir + '/' + os.path.splitext(filename)[0] + ".wav").replace(' ', '\ ')
+                try:
+                    subprocess.check_output([cmd], shell=True, stderr=subprocess.STDOUT)
+                except subprocess.CalledProcessError as e:
+                    print ("{0}: {1}".format(sample, e.output))
+            elif bits == 16:
+                cmd = 'afconvert -f AIFF -d BEI' + str(bits) + ' ' + sample.replace(' ', '\ ') + ' ' +\
+                      (output_samples_dir + '/' + filename).replace(' ', '\ ')
+                try:
+                    subprocess.check_output([cmd], shell=True, stderr=subprocess.STDOUT)
+                except subprocess.CalledProcessError as e:
+                    print ("{0}: {1}".format(sample, e.output))
+            else:
+                copy2(sample, output_samples_dir)
 
     # creating SFZ, writing header
     print ("Writing to {0}...".format(sfz_filename))
     f = open(output_dir + '/' + sfz_filename, 'w')
-    print ("//-------------------------------------------------", file=f)
+    print ("//----------------------------------------------------", file=f)
     print ("// SFZ created by autosampler2sfz.py", file=f)
     print ("// See https://github.com/shinybit/autosampler2sfz.py", file=f)
     print ("//", file=f)
     print ("// Name:   {0}".format(sfz_name), file=f)
     print ("// Author: {0}".format(getuser()), file=f)
     print ("// Date:   {0}".format(date.today().strftime('%d %b, %Y')), file=f)
-    print ("//-------------------------------------------------\n", file=f)
+    print ("//----------------------------------------------------\n", file=f)
 
     # writing regions to SFZ
     lovel = 0
@@ -200,6 +218,9 @@ def main(argv):
         filename = os.path.basename(sample)
         s = file_regex.search(filename.upper())
         if s:
+            if convert2wav:
+                filename = os.path.splitext(filename)[0] + ".wav"
+
             hivel = int(s.group(3))
             lokey = s.group(1) + s.group(2)
 
